@@ -3,16 +3,18 @@ export class Player {
         this.x = x;
         this.y = y;
         this.name = name;
-        this.speed = 5;
+        this.speed = 7; // Adjust speed for smoother movement
         this.size = 32;
     }
 
-    move(dx, dy) {
-        this.x += dx * this.speed;
-        this.y += dy * this.speed;
+    move(dx, dy, hubworld) {
+        const newX = this.x + dx * this.speed;
+        const newY = this.y + dy * this.speed;
 
-        this.x = Math.max(0, Math.min(this.x, 800 - this.size));
-        this.y = Math.max(0, Math.min(this.y, 600 - this.size));
+        if (hubworld.isValidMove(newX, newY)) {
+            this.x = newX;
+            this.y = newY;
+        }
     }
 
     draw(ctx) {
