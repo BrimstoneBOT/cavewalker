@@ -10,13 +10,15 @@ export class Player {
     move(dx, dy) {
         this.x += dx * this.speed;
         this.y += dy * this.speed;
+
+        this.x = Math.max(0, Math.min(this.x, 800 - this.size));
+        this.y = Math.max(0, Math.min(this.y, 600 - this.size));
     }
 
     draw(ctx) {
         ctx.fillStyle = 'blue';
         ctx.fillRect(this.x, this.y, this.size, this.size);
         
-        // Draw player name above the character
         ctx.fillStyle = 'white';
         ctx.font = '14px Arial';
         ctx.textAlign = 'center';
