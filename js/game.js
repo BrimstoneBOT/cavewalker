@@ -86,11 +86,14 @@ class Game {
             this.hubworld.draw(this.ctx);
             this.player.draw(this.ctx);
         } else if (this.gameState === 'cave') {
-
+            // Draw cave environment (to be implemented)
         }
 
         requestAnimationFrame(() => this.gameLoop());
     }
 }
 
-const game = new Game();
+// Initialize the game when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new Game();
+});
