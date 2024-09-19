@@ -8,11 +8,12 @@ class Game {
         this.canvas.width = 800;
         this.canvas.height = 600;
 
-        this.player = null;
         this.hubworld = new Hubworld(this.canvas.width, this.canvas.height);
+        this.player = null;
 
         this.gameState = 'menu';
-        this.keys = {};
+        this.lastMoveTime = 0;
+        this.moveDelay = 100; // Delay between moves in milliseconds
 
         this.setupEventListeners();
     }
@@ -21,15 +22,31 @@ class Game {
         document.getElementById('start-game').addEventListener('click', () => this.showNameInput());
         document.getElementById('submit-name').addEventListener('click', () => this.startGame());
         document.addEventListener('keydown', (e) => this.handleKeyDown(e));
-        document.addEventListener('keyup', (e) => this.handleKeyUp(e));
     }
 
     handleKeyDown(e) {
-        this.keys[e.key] = true;
-    }
+        if (this.gameState !== 'hubworld') return;
 
-    handleKeyUp(e) {
-        this.keys[e.key] = false;
+        const currentTime = Date.now();
+        if (currentTime - this.lastMoveTime < this.moveDelay) return;
+
+        let dx = 0;
+        let dy = 0;
+
+        switch (e.key) {
+            case 'ArrowUp': dy = -1; break;
+            case 'ArrowDown': dy = 1; break;
+            case 'ArrowLeft': dx = -1; break;
+            case 'ArrowRight': dx = 1; break;
+            default: return;
+        }
+
+        if (this.player.move(dx, dy, this.hubworld)) {
+            this.lastMoveTime = currentTime;
+            if (this.hubworld.isExit(this.player.x, this.player.y)) {
+                this.enterCave();
+            }
+        }
     }
 
     showNameInput() {
@@ -46,51 +63,13 @@ class Game {
             document.getElementById('name-input').style.display = 'none';
             this.canvas.style.display = 'block';
             this.gameState = 'hubworld';
-            this.fadeIn();
-        }
-    }
-
-    fadeIn() {
-        let opacity = 0;
-        const fadeInterval = setInterval(() => {
-            opacity += 0.05;
-            this.canvas.style.opacity = opacity;
-            if (opacity >= 1) {
-                clearInterval(fadeInterval);
-                this.gameLoop();
-            }
-        }, 50);
-    }
-
-    updatePlayerPosition() {
-        if (this.gameState !== 'hubworld') return;
-
-        let dx = 0;
-        let dy = 0;
-
-        if (this.keys['ArrowUp']) dy -= 1;
-        if (this.keys['ArrowDown']) dy += 1;
-        if (this.keys['ArrowLeft']) dx -= 1;
-        if (this.keys['ArrowRight']) dx += 1;
-
-        if (dx !== 0 || dy !== 0) {
-            const newX = this.player.x + dx;
-            const newY = this.player.y + dy;
-
-            if (this.hubworld.isValidMove(newX * this.hubworld.tileSize, newY * this.hubworld.tileSize)) {
-                this.player.move(dx, dy, this.hubworld);
-
-                if (this.hubworld.isExit(this.player.x * this.hubworld.tileSize, this.player.y * this.hubworld.tileSize)) {
-                    this.enterCave();
-                }
-            }
+            this.gameLoop();
         }
     }
 
     enterCave() {
         this.gameState = 'cave';
         console.log('Entering the cave!');
-
         this.ctx.fillStyle = 'black';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
@@ -98,23 +77,17 @@ class Game {
         this.ctx.font = '24px Arial';
         this.ctx.textAlign = 'center';
         this.ctx.fillText('You have entered the cave!', this.canvas.width / 2, this.canvas.height / 2);
-        
-        cancelAnimationFrame(this.animationFrame);
     }
 
     gameLoop() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.updatePlayerPosition();
-
         if (this.gameState === 'hubworld') {
             this.hubworld.draw(this.ctx);
             this.player.draw(this.ctx, this.hubworld.tileSize);
-        } else if (this.gameState === 'cave') {
-
         }
 
-        this.animationFrame = requestAnimationFrame(() => this.gameLoop());
+        requestAnimationFrame(() => this.gameLoop());
     }
 }
 
