@@ -11,7 +11,8 @@ class Game {
         this.player = null;
         this.hubworld = new Hubworld(this.canvas.width, this.canvas.height);
 
-        this.gameState = 'menu'; // 'menu', 'name-input', 'hubworld', or 'cave'
+        this.gameState = 'menu';
+        this.keys = {};
 
         this.setupEventListeners();
     }
@@ -20,6 +21,15 @@ class Game {
         document.getElementById('start-game').addEventListener('click', () => this.showNameInput());
         document.getElementById('submit-name').addEventListener('click', () => this.startGame());
         document.addEventListener('keydown', (e) => this.handleKeyDown(e));
+        document.addEventListener('keyup', (e) => this.handleKeyUp(e));
+    }
+
+    handleKeyDown(e) {
+        this.keys[e.key] = true;
+    }
+
+    handleKeyUp(e) {
+        this.keys[e.key] = false;
     }
 
     showNameInput() {
@@ -51,26 +61,23 @@ class Game {
         }, 50);
     }
 
-    handleKeyDown(e) {
+    updatePlayerPosition() {
         if (this.gameState !== 'hubworld') return;
 
-        switch (e.key) {
-            case 'ArrowUp':
-                this.player.move(0, -1);
-                break;
-            case 'ArrowDown':
-                this.player.move(0, 1);
-                break;
-            case 'ArrowLeft':
-                this.player.move(-1, 0);
-                break;
-            case 'ArrowRight':
-                this.player.move(1, 0);
-                break;
-        }
+        let dx = 0;
+        let dy = 0;
 
-        if (this.hubworld.isCaveEntrance(this.player.x, this.player.y)) {
-            this.enterCave();
+        if (this.keys['ArrowUp']) dy -= 1;
+        if (this.keys['ArrowDown']) dy += 1;
+        if (this.keys['ArrowLeft']) dx -= 1;
+        if (this.keys['ArrowRight']) dx += 1;
+
+        if (dx !== 0 || dy !== 0) {
+            this.player.move(dx, dy, this.hubworld);
+
+            if (this.hubworld.isCaveEntrance(this.player.x, this.player.y)) {
+                this.enterCave();
+            }
         }
     }
 
@@ -81,6 +88,8 @@ class Game {
 
     gameLoop() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.updatePlayerPosition();
 
         if (this.gameState === 'hubworld') {
             this.hubworld.draw(this.ctx);
