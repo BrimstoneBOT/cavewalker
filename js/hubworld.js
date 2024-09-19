@@ -7,6 +7,7 @@ export class Hubworld {
         this.map = this.generateMap();
         this.exitPosition = this.generateExit();
         this.exitRevealed = false;
+        this.playerStartPosition = this.generatePlayerStart();
     }
 
     generateMap() {
@@ -33,6 +34,15 @@ export class Hubworld {
             x = Math.floor(Math.random() * (this.mapSize[0] - 2)) + 1;
             y = Math.floor(Math.random() * (this.mapSize[1] - 2)) + 1;
         } while (this.map[y][x] !== null);
+        return [x, y];
+    }
+
+    generatePlayerStart() {
+        let x, y;
+        do {
+            x = Math.floor(Math.random() * (this.mapSize[0] - 2)) + 1;
+            y = Math.floor(Math.random() * (this.mapSize[1] - 2)) + 1;
+        } while (this.map[y][x] !== null || (x === this.exitPosition[0] && y === this.exitPosition[1]));
         return [x, y];
     }
 
