@@ -33,10 +33,12 @@ export class Player {
         const newX = this.x + dx;
         const newY = this.y + dy;
 
-        if (hubworld.isValidMove(newX * hubworld.tileSize, newY * hubworld.tileSize)) {
+        if (hubworld.isValidMove(newX, newY)) {
             this.x = newX;
             this.y = newY;
+            return true;
         }
+        return false;
     }
 
     draw(ctx, tileSize) {
