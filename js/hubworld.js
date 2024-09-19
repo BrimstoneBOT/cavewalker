@@ -2,45 +2,48 @@ export class Hubworld {
     constructor(width, height) {
         this.width = width;
         this.height = height;
-        this.tileSize = 32; // Smaller tiles for more detailed map
+        this.tileSize = 32;
+        this.mapSize = [Math.floor(width / this.tileSize), Math.floor(height / this.tileSize)];
         this.map = this.generateMap();
+        this.exitPosition = this.generateExit();
+        this.exitRevealed = false;
     }
 
     generateMap() {
-        const mapWidth = Math.floor(this.width / this.tileSize);
-        const mapHeight = Math.floor(this.height / this.tileSize);
         const map = [];
-
-        for (let y = 0; y < mapHeight; y++) {
+        for (let y = 0; y < this.mapSize[1]; y++) {
             const row = [];
-            for (let x = 0; x < mapWidth; x++) {
-                if (x === 0 || y === 0 || x === mapWidth - 1 || y === mapHeight - 1) {
-                    row.push('wall');
+            for (let x = 0; x < this.mapSize[0]; x++) {
+                if (x === 0 || y === 0 || x === this.mapSize[0] - 1 || y === this.mapSize[1] - 1) {
+                    row.push('obstacle');
                 } else if (Math.random() < 0.1) {
                     row.push('obstacle');
                 } else {
-                    row.push(null); // Empty space
+                    row.push(null);
                 }
             }
             map.push(row);
         }
-
-        // Add cave entrance
-        map[Math.floor(mapHeight / 2)][Math.floor(mapWidth / 2)] = 'cave';
-
         return map;
     }
 
+    generateExit() {
+        let x, y;
+        do {
+            x = Math.floor(Math.random() * (this.mapSize[0] - 2)) + 1;
+            y = Math.floor(Math.random() * (this.mapSize[1] - 2)) + 1;
+        } while (this.map[y][x] !== null);
+        return [x, y];
+    }
+
     draw(ctx) {
-        for (let y = 0; y < this.map.length; y++) {
-            for (let x = 0; x < this.map[y].length; x++) {
+        for (let y = 0; y < this.mapSize[1]; y++) {
+            for (let x = 0; x < this.mapSize[0]; x++) {
                 const tile = this.map[y][x];
-                if (tile === 'wall') {
+                if (tile === 'obstacle') {
                     ctx.fillStyle = 'gray';
-                } else if (tile === 'obstacle') {
-                    ctx.fillStyle = 'brown';
-                } else if (tile === 'cave') {
-                    ctx.fillStyle = 'black';
+                } else if (this.exitRevealed && x === this.exitPosition[0] && y === this.exitPosition[1]) {
+                    ctx.fillStyle = 'yellow';
                 } else {
                     ctx.fillStyle = 'green';
                 }
@@ -49,18 +52,17 @@ export class Hubworld {
         }
     }
 
-    isCaveEntrance(x, y) {
-        const tileX = Math.floor(x / this.tileSize);
-        const tileY = Math.floor(y / this.tileSize);
-        return this.map[tileY][tileX] === 'cave';
-    }
-
     isValidMove(x, y) {
         const tileX = Math.floor(x / this.tileSize);
         const tileY = Math.floor(y / this.tileSize);
-        return tileX >= 0 && tileX < this.map[0].length &&
-               tileY >= 0 && tileY < this.map.length &&
-               this.map[tileY][tileX] !== 'wall' &&
+        return tileX >= 0 && tileX < this.mapSize[0] &&
+               tileY >= 0 && tileY < this.mapSize[1] &&
                this.map[tileY][tileX] !== 'obstacle';
+    }
+
+    isExit(x, y) {
+        const tileX = Math.floor(x / this.tileSize);
+        const tileY = Math.floor(y / this.tileSize);
+        return this.exitRevealed && tileX === this.exitPosition[0] && tileY === this.exitPosition[1];
     }
 }
