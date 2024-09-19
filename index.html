@@ -5,12 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAVEWALKER</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="landing-page">
-        <h1 class="game-title">CAVEWALKER</h1>
-        <button id="start-game" class="start-button">Start</button>
+    <div id="landing-page" class="fullscreen">
+        <div class="enter-text">Press Enter to Start</div>
     </div>
+    <div id="name-input" class="fullscreen" style="display: none;">
+        <div class="name-input-container">
+            <label for="player-name">Enter your name:</label>
+            <input type="text" id="player-name" maxlength="20">
+            <button id="submit-name">Start Adventure</button>
+        </div>
+    </div>
+    <canvas id="game-canvas" class="fullscreen" style="display: none;"></canvas>
     <script src="js/game.js" type="module"></script>
 </body>
 </html>
