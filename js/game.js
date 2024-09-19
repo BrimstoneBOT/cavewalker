@@ -41,7 +41,8 @@ class Game {
     startGame() {
         const playerName = document.getElementById('player-name').value.trim();
         if (playerName) {
-            this.player = new Player(1, 1, playerName);
+            const [startX, startY] = this.hubworld.playerStartPosition;
+            this.player = new Player(startX, startY, playerName);
             document.getElementById('name-input').style.display = 'none';
             this.canvas.style.display = 'block';
             this.gameState = 'hubworld';
@@ -73,10 +74,15 @@ class Game {
         if (this.keys['ArrowRight']) dx += 1;
 
         if (dx !== 0 || dy !== 0) {
-            this.player.move(dx, dy, this.hubworld);
+            const newX = this.player.x + dx;
+            const newY = this.player.y + dy;
 
-            if (this.hubworld.isExit(this.player.x * this.hubworld.tileSize, this.player.y * this.hubworld.tileSize)) {
-                this.enterCave();
+            if (this.hubworld.isValidMove(newX * this.hubworld.tileSize, newY * this.hubworld.tileSize)) {
+                this.player.move(dx, dy, this.hubworld);
+
+                if (this.hubworld.isExit(this.player.x * this.hubworld.tileSize, this.player.y * this.hubworld.tileSize)) {
+                    this.enterCave();
+                }
             }
         }
     }
@@ -84,6 +90,16 @@ class Game {
     enterCave() {
         this.gameState = 'cave';
         console.log('Entering the cave!');
+
+        this.ctx.fillStyle = 'black';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '24px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('You have entered the cave!', this.canvas.width / 2, this.canvas.height / 2);
+        
+        cancelAnimationFrame(this.animationFrame);
     }
 
     gameLoop() {
@@ -95,9 +111,10 @@ class Game {
             this.hubworld.draw(this.ctx);
             this.player.draw(this.ctx, this.hubworld.tileSize);
         } else if (this.gameState === 'cave') {
+
         }
 
-        requestAnimationFrame(() => this.gameLoop());
+        this.animationFrame = requestAnimationFrame(() => this.gameLoop());
     }
 }
 
