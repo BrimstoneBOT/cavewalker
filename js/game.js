@@ -41,7 +41,7 @@ class Game {
             default: return;
         }
 
-        if (this.player.move(dx, dy, this.hubworld)) {
+        if (this.player && this.player.move(dx, dy, this.hubworld)) {
             this.lastMoveTime = currentTime;
             if (this.hubworld.isExit(this.player.x, this.player.y)) {
                 this.enterCave();
@@ -84,13 +84,16 @@ class Game {
 
         if (this.gameState === 'hubworld') {
             this.hubworld.draw(this.ctx);
-            this.player.draw(this.ctx, this.hubworld.tileSize);
+            if (this.player) {
+                this.player.draw(this.ctx, this.hubworld.tileSize);
+            }
         }
 
         requestAnimationFrame(() => this.gameLoop());
     }
 }
 
+// Initialize the game when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     new Game();
 });
