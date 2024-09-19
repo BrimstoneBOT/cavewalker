@@ -41,7 +41,7 @@ class Game {
     startGame() {
         const playerName = document.getElementById('player-name').value.trim();
         if (playerName) {
-            this.player = new Player(400, 300, playerName);
+            this.player = new Player(1, 1, playerName);
             document.getElementById('name-input').style.display = 'none';
             this.canvas.style.display = 'block';
             this.gameState = 'hubworld';
@@ -75,7 +75,7 @@ class Game {
         if (dx !== 0 || dy !== 0) {
             this.player.move(dx, dy, this.hubworld);
 
-            if (this.hubworld.isCaveEntrance(this.player.x, this.player.y)) {
+            if (this.hubworld.isExit(this.player.x * this.hubworld.tileSize, this.player.y * this.hubworld.tileSize)) {
                 this.enterCave();
             }
         }
@@ -93,9 +93,8 @@ class Game {
 
         if (this.gameState === 'hubworld') {
             this.hubworld.draw(this.ctx);
-            this.player.draw(this.ctx);
+            this.player.draw(this.ctx, this.hubworld.tileSize);
         } else if (this.gameState === 'cave') {
-
         }
 
         requestAnimationFrame(() => this.gameLoop());
