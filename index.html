@@ -8,12 +8,16 @@
 </head>
 <body>
     <div id="game-container">
-        <canvas id="game-canvas"></canvas>
-        <div id="main-menu">
+        <div id="main-menu" class="screen">
             <h1>CAVEWALKER</h1>
             <button id="start-game">Start Game</button>
-            <button id="options">Options</button>
         </div>
+        <div id="name-input" class="screen" style="display: none;">
+            <h2>Enter Your Name</h2>
+            <input type="text" id="player-name" maxlength="20">
+            <button id="submit-name">Start Adventure</button>
+        </div>
+        <canvas id="game-canvas" class="screen" style="display: none;"></canvas>
     </div>
     <script src="js/game.js" type="module"></script>
 </body>
